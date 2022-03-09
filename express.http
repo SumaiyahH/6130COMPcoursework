@@ -1,0 +1,15 @@
+GET http://192.168.56.10:81
+
+
+###
+
+
+POST http://193.168.56.10:81 HTTP/1.1
+Content-Type: application/json
+
+{ 
+    "_id": 8, 
+    "item": "Marathon Bar", 
+    "price": 0.9, 
+    "quantity": 20 
+} 
