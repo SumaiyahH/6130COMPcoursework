@@ -1,0 +1,63 @@
+The docker compose file describes a three node mongodb cluster with a setup node that runs a script to setup the cluster. The docker file also contains a web service container in the nodejs folder. The mongo.js file in the src folder impliments the web service to get data from the mongo database and post data to the database.
+
+sudo docker-compose up 
+
+in a new temrinal list the running containers
+
+sudo docker container ls
+
+login to the localmongo1 container using its id found from above command
+
+sudo docker exec -ti 79305a9a224a /bin/bash
+
+Type mongo to run the mongodb client
+
+root@mongo1:/# mongo
+
+The command prompt should show that the node is primary. If not exit and login to the other mongo nodes until you see the primary node. If no node is primary there would have been an error running the cluster setup script.
+
+rs0:PRIMARY>
+
+Type use sweetShopDB to switch to the sweetShopDB
+
+rs0:PRIMARY> use sweetShopDB
+switched to db sweetShopDB
+
+To insert data into a collection use the insert many command
+
+rs0:PRIMARY> db.stock.insertMany([ 
+  { '_id': 1, 'item': 'Mars Bar', 'price': 0.80, 'quantity': 2 }, 
+  { '_id': 2, 'item': 'Twix', 'price': 0.90, 'quantity': 1 }, 
+  { '_id': 3, 'item': 'Creme Egg', 'price': 0.70, 'quantity': 10 }, 
+  { '_id': 4, 'item': 'Malteasers', 'price': 0.85, 'quantity':  20 }, 
+  { '_id': 5, 'item': 'Crunchie', 'price': 0.90, 'quantity': 10 }, 
+  { '_id': 6, 'item': 'Toffee Crisp', 'price': 0.75, 'quantity': 5 }, 
+  { '_id': 7, 'item': 'Smarties', 'price': 0.65, 'quantity': 10 } 
+]);
+
+
+To show the inserted data.
+
+db.getCollection('stock').find({});
+
+
+to exit mongo type exit
+
+to exit the container type exit.
+
+rs0:PRIMARY> exit
+bye
+root@mongo1:/# exit
+exit
+
+You can test the web service using curl. This should print the current data in the collection
+
+curl http://127.0.0.1:81
+
+We can also use curl to post data into the collection.
+
+curl -X POST -H "Content-Type: application/json" -d '{"_id": 9, "item": "Marathon Bar", "price": 0.9,"quantity": 20}'  http://127.0.0.1:81
+
+You should review the mongo.js file to identify the get and post web service.
+
+

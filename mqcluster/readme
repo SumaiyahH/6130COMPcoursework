@@ -1,0 +1,46 @@
+The mqcluster project contains a docker compose file that creates a three node rabbitmq cluster. It also creates a load balancer node for the web interface and the mq port.
+
+to start the cluster type
+
+sudo docker-compose up
+
+If you have issues with the cluster, try to delete the volumes that are used for storage
+
+sudo docker volume rm $(sudo docker volume ls -f dangling=true -q)
+
+Visit the admin page to verify that the three nodes are green (this will be the IP of your VM or 127.0.0.1 if using docker on windows).
+
+http://127.0.0.1:40001/#/
+
+You will need to click on the admin tab to create a user to access the messageQ.
+
+Create the user test with password test. Add the admin set to the account and click add user.
+
+Select the new user and click the set permission box.
+
+We can now test the cluster.
+
+cd into the tests directory and install ampqlib. This is the client library of the MQ used by nodejs.
+
+npm install amqplib
+
+run the subscriber test code.
+
+nodejs subtest.js
+ [*] Waiting for messages in amq.gen-MraP8ZOkPAXw20rx0U2ybA. To exit press CTRL+C
+ [x] Hello World!
+ [x] Hello World!
+
+
+in a new tab run the publisher code
+
+node pubtest.js
+ [x] Sent Hello World!
+
+
+You should see the output change under the subscriber command.
+
+ [*] Waiting for messages in amq.gen-MraP8ZOkPAXw20rx0U2ybA. To exit press CTRL+C
+ [x] Hello World!
+ [x] Hello World!
+
