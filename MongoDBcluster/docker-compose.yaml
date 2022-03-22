@@ -38,3 +38,11 @@ services:
     build: ./nodejs
     ports:
       - "81:3000"
+  node2:
+    build: ./nodejs
+    ports:
+      - "82:3000"
+  node3:
+    build: ./nodejs
+    ports:
+      - "83:3000"    

@@ -1,5 +1,6 @@
-version: "3"
-services:
+ version: "3"
+
+ services:
   mongo1:
     hostname: mongo1
     container_name: localmongo1
@@ -38,16 +39,19 @@ services:
  
  
     node1:
-    build: ./nodejs
-    ports:
+     build: ./nodejs
+     ports:
       - "81:3000"
 
-node2: 
-    build: ./nodejs 
-    ports: 
-      - "82:3000" 
-  node3: 
-    build: ./nodejs 
-    ports: 
+
+    node2: 
+     build: ./nodejs 
+     ports: 
+     - "82:3000" 
+
+
+    node3: 
+     build: ./nodejs 
+     ports: 
       - "83:3000" 
 
