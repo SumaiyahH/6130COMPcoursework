@@ -1,0 +1,32 @@
+
+use("NotFlixDB");
+ // The drop() command destroys all data from a collection. 
+// Make sure you run it against the correct database and collection. 
+db.interactions.drop();
+// Insert a few documents into the stock collection
+
+db.interactions.insertMany([ 
+  { "Account_id": 1, "Username": "Sarah Jane", "Title_ID": 111, "User_Action": 2, DateandTime: "2022-06-26T12:35:00Z", Point_of_interaction: "pause", Type_of_interaction: "smart tv" },                      
+  { "Account_id": 2, "Username": "Tom Cruz", "Title_ID": 222, "User_Action": 3, DateandTime :"2022-06-26T12:35:00Z" , Point_of_interaction: "pause", Type_of_interaction: "laptop" },                     
+  { "Account_id": 3, "Username": "Sherlock Holmes", "Title_ID": 333, "User_Action": 2, DateandTime : "2022-06-26T12:35:00Z",  "14:32pm", Point_of_interaction: "play", Type_of_interaction: "smart tv" },                    
+  { "Account_id": 4, "Username": "William Smith", "Title_ID": 444, "User_Action": 1, DateandTime : "2022-06-26T12:35:00Z", "16:45pm", Point_of_interaction: "stop", Type_of_interaction: "mobile" },                   
+  { "Account_id": 5, "Username": "Lizzie McGuire", "Title_ID": 555, "User_Action": 3, DateandTime : "2022-06-26T12:35:00Z",  "18:20pm", Point_of_interaction: "play", Type_of_interaction: "app" },                     
+  { "Account_id": 6, "Username": "Bruce Wayne", "Title_ID": 666 , "User_Action": 6, DateandTime : "2022-06-26T12:35:00Z",  "20:00pm", Point_of_interaction: "stop", Type_of_interaction: "smart tv" },                   
+  { "Account_id": 7, "Username": "Tom Hanks", "Title_ID": 777, "User_Action": 1, DateandTime : "2022-06-26T12:35:00Z", Point_of_interaction: "stop", Type_of_interaction: "laptop" },            
+]); 
+
+
+
+use("NotFlixDB"); 
+
+db.getCollection("interactions") 
+  .find( 
+    { 
+    }, 
+    { 
+      item: 1 
+    } 
+  ) 
+  .sort({ 
+      item: 1 
+  });
