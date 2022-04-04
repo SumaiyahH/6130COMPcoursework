@@ -35,27 +35,29 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 var Schema = mongoose.Schema;
 
-var stockSchema = new Schema({
-  _id: Number,
-  item: String,
-  price: Number,
-  quantity: Number
+var NotFlixSchema = new Schema({
+  Account_id: Number,
+  Title_id: String,
+  User_Action: Number,
+  DateandTime: Date,
+  Point_of_interaction: String,
+  Type_of_interaction: String
 });
 
-var stockModel = mongoose.model('Stock', stockSchema, 'stock');
+var NotFlixModel = mongoose.model('Interactions',  NotFlixSchema, 'interactions');
 
 
 
 app.get('/', (req, res) => {
-  stockModel.find({},'item price quantity', (err, stock) => {
+  NotFlixModel.find({},'Account_id,Title_id,User_Action,DateandTime,Point_of_interaction,Type_of_interaction', (err, interactions) => {
     if(err) return handleError(err);
-    res.send(JSON.stringify(stock))
+    res.send(JSON.stringify(interactions))
   }) 
 })
 
 app.post('/',  (req, res) => {
-  var awesome_instance = new stockModel(req.body);
-  awesome_instance.save(function (err) {
+  var awesome_instance = new NotFlixModel(req.body);
+  NotFlix_instance.save(function (err) {
   if (err) res.send('Error');
     res.send(JSON.stringify(req.body))
   });
