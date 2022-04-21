@@ -1,5 +1,5 @@
 //Object data modelling library for mongo
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); 
 
 //Mongo db client library
 //const MongoClient  = require('mongodb');
@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const express = require('express')
 
 //used to parse the server response from json to object.
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser'); 
 
 //Hostname
 const os = require("os");
@@ -41,6 +41,7 @@ var Schema = mongoose.Schema;
 
 var NotFlixSchema = new Schema({
   Account_id: Number,
+  Username: String,
   Title_id: String,
   User_Action: Number,
   DateandTime: Date,
@@ -53,7 +54,7 @@ var NotFlixModel = mongoose.model('Interactions',  NotFlixSchema, 'interactions'
 
 //send object back to match the interaction type
 app.get('/', (req, res) => {
-  NotFlixModel.find({},'Account_id,Title_id,User_Action,DateandTime,Point_of_interaction,Type_of_interaction', (err, interactions) => {
+  NotFlixModel.find({},'Account_id, Username, Title_id,User_Action,DateandTime,Point_of_interaction,Type_of_interaction', (err, interactions) => {
     if(err) return handleError(err);
     res.send(JSON.stringify(interactions))
   }) 
@@ -61,19 +62,34 @@ app.get('/', (req, res) => {
 
 // save a new user interaction
 app.post('/',  (req, res) => {
-  var awesome_instance = new NotFlixModel(req.body);
+  var NotFlix_instance = new NotFlixModel(req.body);
   NotFlix_instance.save(function (err) {
   if (err) res.send('Error');
     res.send(JSON.stringify(req.body))
   });
 })
-// Assign node ID 
-var nodeID = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+var status = "Alive";
+// Assign node ID
+var nodeIdentifier = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+// Getting current date and time to see when the node last broadcasted
+var dateandTime = new Date().getTime() / 1000; 
 
-//publish Message
+// Sets one node as the leader 
+var isNodeTheLeader = false; 
+// Allows list nodes to form
+var hasMessageQueueStarted = false; 
+
+
+
+// Store list of nodes in the array of the message that contains node identifier, hostname, date and status, 
+var nodeMessage = { nodeIdentifier: nodeIdentifier, hostname: myhostname, date: dateandTime, status: status };
+
+nodes.push(nodeMessage);
+
+
+//Required for messege queueing for RabbitMQ
 var amqp = require('amqplib/callback_api');
-
-
+// Node publish Alive message (every 2 seconds)
 setInterval(function () {
   amqp.connect('amqp://user:bitnami@192.168.56.10', function(error0, connection) {
     if (error0) {
@@ -84,103 +100,89 @@ setInterval(function () {
         throw error1;
       }
       var exchange = 'logs';
+//Getting current date and time
+dateandTime = new Date().getTime() / 1000;
+      var msg = `{"nodeIdentifier": ${nodeIdentifier}, "hostname": "${myhostname}", "date": ${dateandTime},"status":"${status}"}`
+      var messageConvertedToJSON = JSON.stringify(JSON.parse(msg));
 
-//Getting date and time for right now
-let newDate = new Date()
-var currentTime = newDate.toISOString();
-
-      var msg = JSON.stringify({"nodeIdentifier": nodeID, "Status": "Alive", "hostName": myhostname, "date": currentTime});
       channel.assertExchange(exchange, 'fanout', {
         durable: false
       });
-      channel.publish(exchange, '', Buffer.from(msg));
+      channel.publish(exchange, '', Buffer.from(messageConvertedToJSON));
       console.log(" [x] Sent %s", msg);
     });
-    
-      setTimeout(function() {
-        connection.close();
-      }, 500);
-    });
+
+    setTimeout(function() {
+      connection.close();
+    }, 500);
+  });
 }, 2000);
 
 
 
 //subscribe
 amqp.connect('amqp://user:bitnami@192.168.56.10' , function(error0, connection) {
-    if (error0) {
-      throw error0;
+  if (error0) {
+    throw error0;
+  }
+  connection.createChannel(function (error1, channel) {
+    if (error1) {
+      throw error1;
     }
-    connection.createChannel(function (error1, channel) {
-      if (error1) {
-        throw error1;
+    var exchange = 'logs';
+    channel.assertExchange(exchange, 'fanout', {
+      durable: false
+    });
+    channel.assertQueue('', {
+      exclusive: true
+    }, function (error2, q) {
+      if (error2) {
+        throw error2;
       }
-      var exchange = 'logs';
-      channel.assertExchange(exchange, 'fanout', {
-        durable: false
-      });
-      channel.assertQueue('', {
-        exclusive: true
-      }, function (error2, q) {
-        if (error2) {
-          throw error2;
-        }
-        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q.queue);
-        channel.bindQueue(q.queue, exchange, '');
-        channel.consume(q.queue, function (msg) {
-          if (msg.content) {
-            console.log(" [x] %s", msg.content.toString());
+      console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q.queue);
+      channel.bindQueue(q.queue, exchange, '');
+      channel.consume(q.queue, function (msg) {
+        if (msg.content) {
+          console.log(" [x] %s", msg.content.toString());
 
-            let hostNameFromMessage = JSON.parse(msg.content.toString()).hostName;
-            let nodeIDFromMessage = JSON.parse(msg.content.toString()).nodeIdentifier;
-            let date = JSON.parse(msg.content.toString()).date;
-
-            nodes.some(node => node.hostName === hostNameFromMessage) ? (nodes.find(e => e.hostName === hostNameFromMessage)).date = date : 
-            nodes.push({"nodeID" : nodeIDFromMessage,"hostName": hostNameFromMessage, "status" : "Alive", "date": date})
+          var newMessage = JSON.parse(msg.content.toString());
+          dateandTime = new Date().getTime() / 1000;
+          // checks to see if node is in the current list, otherwise list gets updated and node is updated with new node identifier 
+          if (nodes.some(singleNode => singleNode.hostname === newMessage.hostname)) {
+            var nodeThatExists = nodes.find(existingNode => existingNode.hostname === newMessage.hostname);
+            nodeThatExists.date = dateandTime;
+            if (nodeThatExists.nodeIdentifier !== newMessage.nodeIdentifier) {
+              nodeThatExists.nodeIdentifier = newMessage.nodeIdentifier;
+            }
+            hasMessageQueueStarted = true;
+          } else {
+            nodes.push(newMessage);
           }
-        }, {
-          noAck: true
-        });
+        }
+      }, {
+        noAck: true
       });
     });
   });
+});
 
-
-  setInterval(function () {
-      console.log("//// Printing all nodes in nodes array ////")
-  Object.entries(nodes).forEach(([hostname, prop]) => {
-    console.log('hostname: ' + prop.hostName + ' prop nodeID : ' + prop.nodeID)
-  });
-  console.log("//// Finished printing all nodes in nodes array ////")
-
-    }, 5000);
-
-
-
-
-    var maxNodeID = 0;
-var systemLeader = 0
-
-    //Leadership election
+//Leadership election code
 setInterval(function () {
-  console.log(JSON.stringify(nodes));
-  leader = 1;
-  activeNodes = 0;
-  Object.entries(nodes).forEach(([hostname, prop]) => {
-    console.log("test" + JSON.stringify(prop.hostName) + JSON.stringify(prop))
-    maxNodeID = nodeID;
-    if (prop.hostName != myhostname) {
-      if ("nodeID" in prop) {
-        activeNodes++;
-        if (prop.nodeID > nodeID) {
-          leader = 0;
+  //Make sure this code doesn't execute if RabbitMQ hasn't started (fixes bug where all nodes are leaders)
+  if (hasMessageQueueStarted) {
+    var maxNodeIDIdentifier = 0;
+    Object.entries(nodes).forEach(([hostname, prop]) => {
+      if (prop.hostname != myhostname) {
+        if (prop.nodeIdentifier > maxNodeIDIdentifier) {
+          maxNodeIDIdentifier = prop.nodeIdentifier;
         }
       }
-    }
-    if ((leader == 1) && (activeNodes == nodes.length)) {
-      systemLeader = 1;
+    });
+    if (nodeIdentifier >= maxNodeIDIdentifier) {
       console.log('I am the leader');
+      isNodeTheLeader = true;
     }
-  });
+  }
 }, 2000);
 
 
@@ -192,5 +194,5 @@ app.put('/',  (req, res) => {
 
 //bind the express web service to the port specified
 app.listen(port, () => {
- console.log(`Express Application listening at port ` + port)
+  console.log(`Express Application listening at port ` + port)
 })

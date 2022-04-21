@@ -3,6 +3,6 @@
   POST http://192.168.56.10 HTTP/1.1
   content-type application/json
   {
-      "Account_id": 1, "Username": "Sarah Jane", "Title_ID": 111, "User_Action": 2, DateandTime: "2022-06-26T12:35:00Z", Point_of_interaction: "pause", Type_of_interaction: "smart tv"                    
+      "Account_id": 1, "Username": "Sarah Jane", "Title_ID": 111, "User_Action": 2, "DateandTime": "2022-06-26T12:35:00Z", "Point_of_interaction": "pause", "Type_of_interaction": "smart tv"                    
 
   }
