@@ -37,5 +37,6 @@ you can also access the database directly in the VM by listing the running conta
 3. this can be cross refrenced using the list of alive nodes by checking the Node ID is the highest 
  
  # Docker API
- 
+ Tried to implement Docker API based on week 4 tutorials however not fully functional 
+ it is suppose to notify when a node is dead, and recreates container.
  
