@@ -5,12 +5,12 @@ Repository for NotFlix cloud Solution
 # Mongo DB 
 1. Open VS code
 
-2.Go to extensions and install the 'MongoDB' package and the  'Rest client' package 
+2. Go to extensions and install the 'MongoDB' package and the  'Rest client' package 
 
-3.Open up the MongoDB package and add a new connection for: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/notFLIX_DB?replicaSet=rs0'
+3. Open up the MongoDB package and add a new connection for: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/notFLIX_DB?replicaSet=rs0'
   In the MongoDB package select 'Create new playground' and insert tests data into my NotFlixDB
   
-4.Navigate to the mongo.http file in my 'tests' and select 'send request' on the APIs you want to test
+4. Navigate to the mongo.http file in my 'tests' and select 'send request' on the APIs you want to test
 you can also access the database directly in the VM by listing the running containers 'sudo docker container ls'
 
 5. login to mongo server 1 
