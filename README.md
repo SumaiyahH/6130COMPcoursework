@@ -2,6 +2,17 @@
 Repository for NotFlix cloud Solution 
 
 # Getting started
+# Mongo DB 
+1. Open VS code
+2.Go to extensions and install the 'MongoDB' package and the  'Rest client' package 
+3.Open up the MongoDB package and add a new connection for: 'mongodb://mongo1:27017,mongo2:27017,mongo3:27017/notFLIX_DB?replicaSet=rs0'
+  In the MongoDB package select 'Create new playground' and insert tests data into my notFLIX_DB
+4.Navigate to the mongo.http file in my 'tests' and select 'send request' on the APIs you want to test
+you can also access the database directly in the VM by listing the running containers 'sudo docker container ls'
+5. login to mongo server 1 
+6. then run mongo 
+7. this should show as the primary key and allow you to now interact with mongo cluster
+#Solution
  1. Open a new terminal for the VM and set up ubuntu 
  2. In the terminal type the command 'git clone' and paste the URL of the git repository into the VM
  3. To check all the files are in the clones repo type 'ls' on the command line and it will show all the files inside the cloned repo 
